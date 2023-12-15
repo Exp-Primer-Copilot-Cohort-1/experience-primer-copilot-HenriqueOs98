@@ -1,42 +1,43 @@
-const express = require('express');
-const app = express();
-const path = require('path');
-const port = 3000;
-const skills = require('./data/skills.json');
+//create a web server
+const express = require("express");
+const router = express.Router();
+const commentController = require("../controllers/commentController");
+const auth = require("../middleware/auth");
+const commentValidator = require("../middleware/validators/commentValidator");
 
-// Set view engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+// @route POST api/comment
+// @desc Create a comment
+// @access Private
+router.post(
+  "/",
+  auth,
+  commentValidator.validateCreateComment,
+  commentController.createComment
+);
 
-// Set static path
-app.use(express.static(path.join(__dirname, 'public')));
+// @route DELETE api/comment/:comment_id
+// @desc Delete a comment
+// @access Private
+router.delete("/:comment_id", auth, commentController.deleteComment);
 
-// Routes
-app.get('/', (req, res) => {
-  res.render('index', {
-    title: 'Home Page'
-  });
-});
+// @route PUT api/comment/:comment_id
+// @desc Update a comment
+// @access Private
+router.put(
+  "/:comment_id",
+  auth,
+  commentValidator.validateUpdateComment,
+  commentController.updateComment
+);
 
-app.get('/about', (req, res) => {
-  res.render('about', {
-    title: 'About Page'
-  });
-});
+// @route GET api/comment/:comment_id
+// @desc Get a comment
+// @access Private
+router.get("/:comment_id", auth, commentController.getComment);
 
-app.get('/contact', (req, res) => {
-  res.render('contact', {
-    title: 'Contact Page'
-  });
-});
+// @route GET api/comment
+// @desc Get all comments
+// @access Private
+router.get("/", auth, commentController.getAllComments);
 
-app.get('/skills', (req, res) => {
-  res.render('skills', {
-    title: 'Skills Page',
-    skills: skills
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
+module.exports = router;
