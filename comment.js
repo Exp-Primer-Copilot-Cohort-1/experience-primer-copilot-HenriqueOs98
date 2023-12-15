@@ -1,17 +1,42 @@
-// Synthesizing 9/10 solutions (Duplicates hidden)
-// ========================================
-
-// Create web server for comment
-// ========================================
-
-// Import module
 const express = require('express');
-const router = express.Router();
-const commentController = require('../controllers/commentController');
+const app = express();
+const path = require('path');
+const port = 3000;
+const skills = require('./data/skills.json');
 
-// Handle request
-router.get('/', commentController.comment_list);
-router.post('/create', commentController.comment_create_post);
-router.get('/create', commentController.comment_create_get);
-router.get('/:id/delete', commentController.comment_delete_get);
-module.exports = router;
+// Set view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Set static path
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Routes
+app.get('/', (req, res) => {
+  res.render('index', {
+    title: 'Home Page'
+  });
+});
+
+app.get('/about', (req, res) => {
+  res.render('about', {
+    title: 'About Page'
+  });
+});
+
+app.get('/contact', (req, res) => {
+  res.render('contact', {
+    title: 'Contact Page'
+  });
+});
+
+app.get('/skills', (req, res) => {
+  res.render('skills', {
+    title: 'Skills Page',
+    skills: skills
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});
