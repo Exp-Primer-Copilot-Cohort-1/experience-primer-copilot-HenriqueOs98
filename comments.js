@@ -1,43 +1,51 @@
-//create a web server
-const express = require("express");
-const router = express.Router();
-const commentController = require("../controllers/commentController");
-const auth = require("../middleware/auth");
-const commentValidator = require("../middleware/validators/commentValidator");
+// Create web server
 
-// @route POST api/comment
-// @desc Create a comment
-// @access Private
-router.post(
-  "/",
-  auth,
-  commentValidator.validateCreateComment,
-  commentController.createComment
-);
+var express = require('express');
+var router = express.Router();
 
-// @route DELETE api/comment/:comment_id
-// @desc Delete a comment
-// @access Private
-router.delete("/:comment_id", auth, commentController.deleteComment);
+// Import the model (comments.js) to use its database functions.
+var comments = require('../models/comments.js');
 
-// @route PUT api/comment/:comment_id
-// @desc Update a comment
-// @access Private
-router.put(
-  "/:comment_id",
-  auth,
-  commentValidator.validateUpdateComment,
-  commentController.updateComment
-);
+// Create all our routes and set up logic within those routes where required.
+router.get('/', function(req, res) {
+  comments.all(function(data) {
+    var hbsObject = {
+      comments: data
+    };
+    console.log(hbsObject);
+    res.render('index', hbsObject);
+  });
+});
 
-// @route GET api/comment/:comment_id
-// @desc Get a comment
-// @access Private
-router.get("/:comment_id", auth, commentController.getComment);
+router.post('/comments', function(req, res) {
+  comments.create([
+    'comment', 'date'
+  ], [
+    req.body.comment, req.body.date
+  ], function() {
+    res.redirect('/');
+  });
+});
 
-// @route GET api/comment
-// @desc Get all comments
-// @access Private
-router.get("/", auth, commentController.getAllComments);
+router.put('/comments/:id', function(req, res) {
+  var condition = 'id = ' + req.params.id;
 
+  console.log('condition', condition);
+
+  comments.update({
+    comment: req.body.comment
+  }, condition, function() {
+    res.redirect('/');
+  });
+});
+
+router.delete('/comments/:id', function(req, res) {
+  var condition = 'id = ' + req.params.id;
+
+  comments.delete(condition, function() {
+    res.redirect('/');
+  });
+});
+
+// Export routes for server.js to use.
 module.exports = router;
